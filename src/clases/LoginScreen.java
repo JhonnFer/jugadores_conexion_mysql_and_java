@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.JFrame;
 
 public class LoginScreen {
     private JFrame Panel; // Ventana principal de la aplicación
@@ -52,8 +51,15 @@ public class LoginScreen {
         loginButton.setBounds(10, 80, 80, 25); // Posición y tamaño del botón
         panel.add(loginButton);
 
+        JButton registerButton = new JButton("Registrar"); // Botón de registro
+        registerButton.setBounds(100, 80, 165, 25); // Posición y tamaño del botón
+        panel.add(registerButton);
+
         // Acción a ejecutar cuando el usuario hace clic en el botón de login
         loginButton.addActionListener(new LoginActionListener());
+
+        // Acción a ejecutar cuando el usuario hace clic en el botón de registro
+        registerButton.addActionListener(new RegisterActionListener());
     }
 
     // Clase interna que maneja el evento de login
@@ -83,6 +89,35 @@ public class LoginScreen {
             } catch (SQLException ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(Panel, "Error de conexión a la base de datos.", "Error", JOptionPane.ERROR_MESSAGE); // Error de conexión
+            }
+        }
+    }
+
+    // Clase interna que maneja el evento de registro
+    private class RegisterActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String username = usernameField.getText(); // Obtener el texto del campo de usuario
+            String password = new String(passwordField.getPassword()); // Obtener la contraseña
+
+            // Intentar conectar a la base de datos e insertar el nuevo usuario
+            try (Connection connection = DatabaseConfig.getConnection();
+                 PreparedStatement statement = connection.prepareStatement("INSERT INTO Usuarios (usuario, contrasena) VALUES (?, ?)")) {
+
+                statement.setString(1, username); // Establecer el usuario en la consulta
+                statement.setString(2, password); // Establecer la contraseña en la consulta
+
+                int rowsAffected = statement.executeUpdate(); // Ejecutar la consulta de inserción
+
+                if (rowsAffected > 0) {
+                    JOptionPane.showMessageDialog(Panel, "Usuario registrado exitosamente!");
+                } else {
+                    JOptionPane.showMessageDialog(Panel, "Error al registrar el usuario.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(Panel, "Error de conexión a la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
